@@ -1,7 +1,11 @@
+mod models;
+
+use models::weather_api;
+
 use dotenv::dotenv;
 
 #[tokio::main]
-async fn main() -> Result<(), reqwest::Error> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
     let api_key = std::env::var("API_KEY").expect("API_KEY must be set");
 
@@ -13,7 +17,11 @@ async fn main() -> Result<(), reqwest::Error> {
     );
 
     let body = reqwest::get(url).await?.text().await?;
+    let response: weather_api::Response = serde_json::from_str(&body)?;
+    let location = response.location.name;
+    let current_temp = response.current.temp_c;
+    let condition = response.current.condition.text;
 
-    println!("{body:?}");
+    println!("Current weather in {location}: {current_temp} degrees Celsius ({condition})");
     Ok(())
 }
