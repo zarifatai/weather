@@ -1,20 +1,20 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Response {
     pub location: Location,
     pub current: CurrentConditions,
     pub forecast: Forecast,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Location {
     pub name: String,
     pub region: String,
     pub country: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct CurrentConditions {
     pub last_updated_epoch: i32,
     pub temp_c: f32,
@@ -24,7 +24,7 @@ pub struct CurrentConditions {
     pub uv: f32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct DayConditions {
     pub maxtemp_c: f32,
     pub mintemp_c: f32,
@@ -34,7 +34,7 @@ pub struct DayConditions {
     pub uv: f32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct HourConditions {
     pub time_epoch: i32,
     pub temp_c: f32,
@@ -45,17 +45,17 @@ pub struct HourConditions {
     pub uv: f32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ConditionText {
     pub text: String,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Forecast {
     pub forecastday: Vec<ForecastDay>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ForecastDay {
     pub date_epoch: i32,
     pub day: DayConditions,
