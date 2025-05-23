@@ -16,7 +16,7 @@ pub fn get_config() -> Result<Config, Box<dyn std::error::Error>> {
     let path = determine_config_path()
         .expect("Could not determine config file path! Please manually create settings file in ~/.config/weather/config.json");
 
-    let file = std::fs::File::open(path)?;
+    let file = fs::File::open(path)?;
     let reader = BufReader::new(file);
     let config = serde_json::from_reader(reader)?;
 
