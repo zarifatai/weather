@@ -5,13 +5,15 @@ mod models;
 
 use chrono::{Duration, NaiveDateTime, Timelike};
 use clap::Parser;
+use config::Config;
+
+const DEFAULT_N_DAYS: i32 = 1;
+const DEFAULT_N_HOURS: i32 = 2;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut config = config::get_config().expect("Could not determine configuration");
 
-    if let Ok(x) = std::env::var("WEATHER_API_KEY") {
-        config.api_key = Some(x);
-    }
+    set_weather_api_key(&mut config);
     let api_key = config.api_key.expect(
         "No API was provided as an environment variable or through the configuration file!",
     );
@@ -22,8 +24,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .city
         .or(config.city)
         .ok_or("No city was provided as an argument or through the configuration file!")?;
-    let n_days = cli.forecast.or(config.n_forecast_days).or(Some(1)).unwrap();
-    let n_hours = cli.hours.or(config.n_forecast_hours).or(Some(2)).unwrap();
+    let n_days = cli
+        .forecast
+        .or(config.n_forecast_days)
+        .or(Some(DEFAULT_N_DAYS))
+        .unwrap();
+    let n_hours = cli
+        .hours
+        .or(config.n_forecast_hours)
+        .or(Some(DEFAULT_N_HOURS))
+        .unwrap();
 
     let response = api::request_weather_data(api_key, city, &n_days)?;
     print_weather(response, n_days, n_hours);
@@ -84,7 +94,8 @@ fn print_footer(response: &models::weather_api::Response) {
 }
 
 fn print_divider() {
-    println!("___________________________________________________________\n");
+    let char_divider = '_'.to_string();
+    println!("{}", char_divider.repeat(59));
 }
 
 fn get_coming_hours(current_datetime: &str, n_hours: &i32) -> Vec<usize> {
@@ -97,4 +108,10 @@ fn get_coming_hours(current_datetime: &str, n_hours: &i32) -> Vec<usize> {
         coming_hours.push(current_hour + 1 + i as usize);
     }
     coming_hours
+}
+
+fn set_weather_api_key(config: &mut Config) {
+    if let Ok(x) = std::env::var("WEATHER_API_KEY") {
+        config.api_key = Some(x);
+    }
 }
