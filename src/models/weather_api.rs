@@ -59,7 +59,7 @@ pub struct Forecast {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ForecastDay {
-    pub date_epoch: i32,
+    pub date: String,
     pub day: DayConditions,
     pub hour: Vec<HourConditions>,
 }
