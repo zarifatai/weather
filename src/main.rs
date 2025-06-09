@@ -3,8 +3,15 @@ mod cli;
 mod config;
 mod models;
 
+use std::io::{self, Write};
+
 use chrono::{Duration, NaiveDateTime, Timelike};
 use clap::Parser;
+use crossterm::{
+    ExecutableCommand, cursor,
+    terminal::{Clear, ClearType},
+};
+
 use config::Config;
 
 const DEFAULT_N_DAYS: i32 = 1;
@@ -35,7 +42,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .or(Some(DEFAULT_N_HOURS))
         .unwrap();
 
+    let mut stdout = io::stdout();
+    print!("Fetching weather data from the internet...");
+    stdout.flush()?;
     let response = api::request_weather_data(api_key, city, &n_days)?;
+    stdout
+        .execute(cursor::MoveToColumn(0))?
+        .execute(Clear(ClearType::CurrentLine))?;
     print_weather(response, n_days, n_hours);
 
     Ok(())
