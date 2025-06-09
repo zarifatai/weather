@@ -5,8 +5,8 @@ use clap::Parser;
 pub struct Cli {
     pub city: Option<String>,
 
-    #[arg(short = 'F', long, value_name = "N_DAYS")]
-    pub forecast: Option<i32>,
+    #[arg(short = 'D', long, value_name = "N_DAYS")]
+    pub days: Option<i32>,
 
     #[arg(short = 'H', long, value_name = "N_HOURS")]
     pub hours: Option<i32>,
