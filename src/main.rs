@@ -5,7 +5,7 @@ mod models;
 
 use std::io::{self, Write};
 
-use chrono::{Duration, NaiveDateTime, Timelike};
+use chrono::{NaiveDateTime, Timelike};
 use clap::Parser;
 use crossterm::{
     ExecutableCommand, cursor,
@@ -34,13 +34,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let n_days = cli
         .days
         .or(config.n_forecast_days)
-        .or(Some(DEFAULT_N_DAYS))
-        .unwrap();
+        .unwrap_or(DEFAULT_N_DAYS);
     let n_hours = cli
         .hours
         .or(config.n_forecast_hours)
-        .or(Some(DEFAULT_N_HOURS))
-        .unwrap();
+        .unwrap_or(DEFAULT_N_HOURS);
 
     let mut stdout = io::stdout();
     print!("Fetching weather data from the internet...");
@@ -119,14 +117,14 @@ fn print_coming_days(response: &models::weather_api::Response, n_days: i32) {
 
     // The first element is skipped because it's the forecast for today
     let n_days = n_days as usize;
-    for i in 1..=n_days {
-        let max_temp_c = forecast_days[i].day.maxtemp_c;
-        let min_temp_c = forecast_days[i].day.mintemp_c;
-        let condition = &forecast_days[i].day.condition.text;
-        let max_wind_kph = forecast_days[i].day.maxwind_kph;
-        let chance_of_rain = forecast_days[i].day.daily_chance_of_rain;
-        let uv = forecast_days[i].day.uv;
-        let day = &forecast_days[i].date;
+    for day in forecast_days.iter().take(n_days + 1).skip(1) {
+        let max_temp_c = day.day.maxtemp_c;
+        let min_temp_c = day.day.mintemp_c;
+        let condition = &day.day.condition.text;
+        let max_wind_kph = day.day.maxwind_kph;
+        let chance_of_rain = day.day.daily_chance_of_rain;
+        let uv = day.day.uv;
+        let day = &day.date;
         println!("{day}:");
         println!(
             "Min/max temperature: {min_temp_c}/{max_temp_c}󰔄  ({condition})| Max wind speed: {max_wind_kph} km/h | Chance of rain: {chance_of_rain}% | UV index: {uv}"
