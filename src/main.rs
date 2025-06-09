@@ -119,8 +119,8 @@ fn print_footer(response: &models::weather_api::Response) {
 }
 
 fn print_divider() {
-    let char_divider = '_'.to_string();
-    println!("{}", char_divider.repeat(59));
+    let char_divider = '-'.to_string();
+    println!("\n{}\n", char_divider.repeat(59));
 }
 
 fn get_coming_hours(current_datetime: &str, n_hours: &i32) -> Vec<usize> {
