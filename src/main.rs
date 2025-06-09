@@ -57,6 +57,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn print_weather(response: models::weather_api::Response, n_days: i32, n_hours: i32) {
     print_location(&response);
     print_conditions(&response.current);
+    print_today(&response);
     print_divider();
     print_coming_hours(&response, &n_hours);
     print_divider();
@@ -81,6 +82,17 @@ fn print_conditions<T: models::weather_api::CommonConditionsAttributes>(conditio
 
     println!("Feels like {feelslike_c}󰔄 ({})", condition.text);
     println!("Actual temperature: {temp_c}󰔄 | UV: {uv} | Wind speed: {wind_kph} km/h");
+}
+
+fn print_today(response: &models::weather_api::Response) {
+    let forecast_today = &response.forecast.forecastday[0];
+    let day_conditions = &forecast_today.day;
+    let max_temp_c = day_conditions.maxtemp_c;
+    let min_temp_c = day_conditions.mintemp_c;
+    let max_wind_kph = day_conditions.maxwind_kph;
+    println!(
+        "\nMin/max temperature: {min_temp_c}/{max_temp_c}󰔄 | Max wind speed: {max_wind_kph} km/h"
+    )
 }
 
 fn print_coming_hours(response: &models::weather_api::Response, n_hours: &i32) {
