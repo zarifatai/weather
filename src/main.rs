@@ -90,7 +90,7 @@ fn print_today(response: &models::weather_api::Response) {
     let min_temp_c = day_conditions.mintemp_c;
     let max_wind_kph = day_conditions.maxwind_kph;
     println!(
-        "\nMin/max temperature: {min_temp_c}/{max_temp_c}󰔄 | Max wind speed: {max_wind_kph} km/h"
+        "Min/max temperature: {min_temp_c}/{max_temp_c}󰔄 | Max wind speed: {max_wind_kph} km/h"
     )
 }
 
