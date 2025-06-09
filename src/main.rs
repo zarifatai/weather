@@ -32,7 +32,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .or(config.city)
         .ok_or("No city was provided as an argument or through the configuration file!")?;
     let n_days = cli
-        .forecast
+        .days
         .or(config.n_forecast_days)
         .or(Some(DEFAULT_N_DAYS))
         .unwrap();
@@ -59,9 +59,10 @@ fn print_weather(response: models::weather_api::Response, n_days: i32, n_hours: 
     print_conditions(&response.current);
     print_today(&response);
     print_divider();
-    print_coming_hours(&response, &n_hours);
+    print_coming_hours(&response, n_hours);
     print_divider();
-    print_coming_days(&response, &n_days);
+    print_coming_days(&response, n_days);
+    print_divider();
     print_footer(&response);
 }
 
@@ -95,32 +96,52 @@ fn print_today(response: &models::weather_api::Response) {
     )
 }
 
-fn print_coming_hours(response: &models::weather_api::Response, n_hours: &i32) {
+fn print_coming_hours(response: &models::weather_api::Response, n_hours: i32) {
     println!(
-        "Coming {n_hours} hour{}:",
-        if *n_hours == 1 { "" } else { "s" }
+        "Coming {n_hours} hour{}:\n",
+        if n_hours == 1 { "" } else { "s" }
     );
     let forecast_today = &response.forecast.forecastday[0];
     let current_datetime = &response.current.last_updated;
-    let coming_hours = get_coming_hours(current_datetime, n_hours);
+    let coming_hours = get_coming_hours(current_datetime, &n_hours);
     for hour in coming_hours {
-        println!("\n{hour}:00:");
+        println!("{hour}:00:");
         print_conditions(&forecast_today.hour[hour]);
     }
 }
 
-fn print_coming_days(response: &models::weather_api::Response, n_days: &i32) {
-    todo!();
+fn print_coming_days(response: &models::weather_api::Response, n_days: i32) {
+    println!(
+        "Coming {n_days} day{}:\n",
+        if n_days == 1 { "" } else { "s" }
+    );
+    let forecast_days = &response.forecast.forecastday;
+
+    // The first element is skipped because it's the forecast for today
+    let n_days = n_days as usize;
+    for i in 1..=n_days {
+        let max_temp_c = forecast_days[i].day.maxtemp_c;
+        let min_temp_c = forecast_days[i].day.mintemp_c;
+        let condition = &forecast_days[i].day.condition.text;
+        let max_wind_kph = forecast_days[i].day.maxwind_kph;
+        let chance_of_rain = forecast_days[i].day.daily_chance_of_rain;
+        let uv = forecast_days[i].day.uv;
+        let day = &forecast_days[i].date;
+        println!("{day}:");
+        println!(
+            "Min/max temperature: {min_temp_c}/{max_temp_c}󰔄  ({condition})| Max wind speed: {max_wind_kph} km/h | Chance of rain: {chance_of_rain}% | UV index: {uv}"
+        );
+    }
 }
 
 fn print_footer(response: &models::weather_api::Response) {
     let last_updated = &response.current.last_updated;
-    println!("\nLast updated: {last_updated} (local time)");
+    println!("Last updated: {last_updated} (local time)");
 }
 
 fn print_divider() {
     let char_divider = '-'.to_string();
-    println!("\n{}\n", char_divider.repeat(59));
+    println!("{}", char_divider.repeat(59));
 }
 
 fn get_coming_hours(current_datetime: &str, n_hours: &i32) -> Vec<usize> {
@@ -130,7 +151,7 @@ fn get_coming_hours(current_datetime: &str, n_hours: &i32) -> Vec<usize> {
     let mut coming_hours = Vec::new();
     let current_hour = current_datetime.hour() as usize;
     for i in 0..*n_hours {
-        coming_hours.push(current_hour + 1 + i as usize);
+        coming_hours.push((current_hour + 1 + i as usize) % 24);
     }
     coming_hours
 }
