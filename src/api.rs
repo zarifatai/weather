@@ -1,5 +1,8 @@
 use crate::models;
 
+use reqwest::Client;
+use std::time::Duration;
+
 #[tokio::main]
 pub async fn request_weather_data(
     api_key: String,
@@ -12,7 +15,8 @@ pub async fn request_weather_data(
         "https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={city}&days={n_days}&aqi=no&alerts=no"
     );
 
-    let body = reqwest::get(url).await?.text().await?;
+    let client = Client::builder().timeout(Duration::from_secs(5)).build()?;
+    let body = client.get(url).send().await?.text().await?;
     let response: models::weather_api::Response = serde_json::from_str(&body)?;
     Ok(response)
 }
